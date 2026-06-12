@@ -29,6 +29,31 @@ For IEEE Xplore, include `ieee` in `--sources` and pass `--ieee-api-key`. If the
 6. Write `deep_research_report.md` in Chinese by synthesizing `topic_brief.md`, `papers.json`, `search_log.md`, and `web_supplement.md`.
 7. Keep API retrieval results and web supplement evidence separate. Do not silently merge web-only findings into `papers.json`.
 
+## Explicit Paper Reading Mode
+
+Paper reading is a high-cost second stage and must not run by default. Use it only when the user explicitly asks to read full papers, inspect PDFs, analyze arXiv source, or generate paper-level reading reports.
+
+Run it after retrieval:
+
+```powershell
+python scripts/read_papers.py --papers-json outputs/run/papers.json --query "multi agent connectivity control" --reading-limit 5 --reading-selection auto
+```
+
+Reading mode prefers source quality in this order:
+
+1. arXiv LaTeX source from `https://arxiv.org/src/<arxiv_id>`, cached locally, unpacked, entrypoint detected, then recursive `\input` / `\include` reading.
+2. Open-access PDF from arXiv PDF or `open_access_url`, saved under `pdfs/`, then text extracted with `pdftotext` when available.
+3. Metadata-only note when neither LaTeX source nor open PDF text is available.
+
+Reading outputs:
+
+- `arxiv_sources/`: unpacked arXiv source for papers with available TeX.
+- `pdfs/`: saved open-access PDFs for fallback reading.
+- `paper_texts/`: extracted text and metadata JSON.
+- `reading_reports/`: one structured Markdown report per selected paper.
+- `pdf_manifest.csv`: acquisition status, local paths, and notes.
+- `reading_index.md`: overview of what was actually read.
+
 ## Outputs
 
 Each run writes a timestamped output directory unless `--output-dir` is provided:
@@ -40,6 +65,7 @@ Each run writes a timestamped output directory unless `--output-dir` is provided
 - `topic_brief.md`: deterministic Chinese research briefing generated from retrieved metadata.
 - `web_supplement.md`: Codex-authored supplemental web-search notes when a hybrid run is requested.
 - `deep_research_report.md`: Codex-authored final synthesis when a hybrid run is requested.
+- `reading_reports/` and `reading_index.md`: explicit paper-reading outputs when `scripts/read_papers.py` is run.
 - `search_log.md`: source parameters, counts, skipped sources, and ranking formula.
 - `errors.log`: connector errors, only when failures occur.
 
@@ -75,6 +101,7 @@ For Deep Research-style outputs, emphasize the topic rather than the mechanics o
 - Use official APIs only.
 - Do not scrape Google Scholar, ResearchGate, publisher pages, or paywalled PDFs.
 - Do not claim the Python CLI has ChatGPT's internal web-search capability. Web search is a Codex workflow step, not a CLI connector.
+- Do not run paper reading mode unless the user explicitly asks for it; it downloads and parses larger artifacts.
 - Do not claim exhaustive coverage unless the user provided a full review protocol, selected databases, exact queries, and inclusion criteria.
 - State that results depend on API availability, source coverage, query quality, metadata quality, and credentials.
 - Read `references/api-notes.md` when changing connector behavior, API parameters, or source-specific claims.

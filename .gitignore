@@ -4,3 +4,4 @@ outputs/
 errors.log
 .DS_Store
 Thumbs.db
+*.baiduyun.uploading.cfg

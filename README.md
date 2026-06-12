@@ -88,6 +88,46 @@ python scripts\lit_retrieve.py `
 
 如果没有提供 `--ieee-api-key`，IEEE Xplore 会被跳过并写入日志。PubMed 可选 `--ncbi-api-key`，Semantic Scholar 可选 `--semantic-scholar-api-key`。
 
+## Explicit Paper Reading Mode
+
+Paper reading is intentionally a second-stage command. It is not part of the default retrieval run because it may download large artifacts and consume much more model context.
+
+```powershell
+python scripts\read_papers.py `
+  --papers-json outputs\multi-agent-connectivity-control\papers.json `
+  --query "multi agent connectivity control" `
+  --reading-limit 5 `
+  --reading-selection auto
+```
+
+Reading mode uses this priority:
+
+1. arXiv LaTeX source, following the popular `read-arxiv-paper` pattern: normalize to `https://arxiv.org/src/<arxiv_id>`, cache the source archive, unpack it, find the TeX entrypoint, and recursively read included TeX files.
+2. Open-access PDF fallback from arXiv PDF or `open_access_url`, saved under `pdfs/` and text-extracted with `pdftotext` when available.
+3. Metadata-only reading note when no LaTeX source or usable open PDF is available.
+
+It writes `arxiv_sources/`, `pdfs/`, `paper_texts/`, `reading_reports/`, `pdf_manifest.csv`, and `reading_index.md`.
+
+## 显式论文阅读模式
+
+论文阅读是第二阶段命令，不会默认触发，因为它可能下载较大的论文源码/PDF，并消耗更多上下文。
+
+```powershell
+python scripts\read_papers.py `
+  --papers-json outputs\multi-agent-connectivity-control\papers.json `
+  --query "multi agent connectivity control" `
+  --reading-limit 5 `
+  --reading-selection auto
+```
+
+阅读优先级：
+
+1. 优先使用 arXiv LaTeX source：规范化为 `https://arxiv.org/src/<arxiv_id>`，缓存源码包，解包，寻找 TeX 入口文件，并递归读取 `\input` / `\include`。
+2. 如果没有 LaTeX source，则使用开放获取 PDF fallback，保存到 `pdfs/`，并在本机有 `pdftotext` 时抽取文本。
+3. 如果 LaTeX 和开放 PDF 都不可用，则生成 metadata-only 阅读笔记。
+
+输出包括 `arxiv_sources/`、`pdfs/`、`paper_texts/`、`reading_reports/`、`pdf_manifest.csv` 和 `reading_index.md`。
+
 ## Outputs
 
 Each run can produce:
@@ -101,6 +141,7 @@ Each run can produce:
 - `errors.log`: connector errors, only when failures occur.
 - `web_supplement.md`: Codex-authored web supplement notes.
 - `deep_research_report.md`: Codex-authored final synthesis.
+- `reading_reports/` and `reading_index.md`: explicit paper-reading outputs.
 
 ## 输出文件
 
@@ -115,6 +156,7 @@ Each run can produce:
 - `errors.log`：仅在连接器失败时生成。
 - `web_supplement.md`：Codex 撰写的网页补充记录。
 - `deep_research_report.md`：Codex 撰写的最终综合调研报告。
+- `reading_reports/` 和 `reading_index.md`：显式论文阅读模式输出。
 
 ## Hybrid Deep Research Workflow
 

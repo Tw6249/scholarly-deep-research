@@ -9,6 +9,26 @@ description: Hybrid Deep Research workflow for scholarly literature retrieval, p
 
 Use this skill to turn a research question into a reproducible literature retrieval run plus a Deep Research-style topic report. The bundled CLI creates the auditable academic corpus; Codex web search can then supplement that corpus with project pages, author pages, open PDFs, recent preprints, and reliable web context.
 
+## Mode Router
+
+Before running scripts, choose the smallest mode that satisfies the user's request. Do not run every capability just because this skill is active. Users do not need to say a fixed mode name; infer the mode from natural language.
+
+| Mode | Autonomy | Use when the user asks for | Run | Do not also run |
+| --- | --- | --- | --- | --- |
+| Topic retrieval | Auto default | paper search, literature survey, related work corpus, bibliography, topic brief | `scripts/lit_retrieve.py` | web synthesis, full-paper reading, citation tracing |
+| Hybrid Deep Research | Auto when clear | Deep Research-style report, comprehensive Chinese synthesis, web-supplemented topic report | `scripts/lit_retrieve.py`, then Codex web supplement and `deep_research_report.md` | PDF/LaTeX reading unless explicitly requested |
+| Paper trace | Auto when clear | paper-centric related-work tracing, predecessors, follow-up work, citation chain, papers using/comparing a seed paper's method, author trajectories from a seed paper | `scripts/trace_paper.py` | topic-wide retrieval or full-paper reading unless requested |
+| Paper reading | Explicit high-cost | read full papers, inspect PDFs, analyze arXiv source/LaTeX, paper-level reading reports, close reading | `scripts/read_papers.py` | broad web supplementation unless requested |
+
+Routing rules:
+
+- Default to Topic retrieval when the request is ambiguous.
+- Treat natural-language intent as enough; never require the user to say "paper trace mode" or another exact phrase.
+- Escalate to Hybrid Deep Research only when the user asks for synthesis/reporting beyond a deterministic topic brief.
+- Escalate to Paper reading only when the user clearly asks for full-text/PDF/LaTeX reading or paper-level analysis.
+- Combine expensive modes only when the user explicitly asks for a combined workflow; run them as separate stages with separate logs.
+- If unsure whether an expensive mode is needed, run the cheaper metadata stage first and mention the available upgrade path.
+
 ## Quick Start
 
 Run the bundled Python CLI from this skill folder:
@@ -56,9 +76,9 @@ Reading outputs:
 
 ## Paper Trace Mode
 
-Use paper trace mode when the user provides a seed paper and asks to find related work from that paper outward: predecessors, follow-up development, papers that use or compare against its method, or recent work by the seed authors and related-method authors.
+Use paper trace mode when the user provides a seed paper and asks to find related work from that paper outward: predecessors, follow-up development, papers that use or compare against its method, or recent work by the seed authors and related-method authors. Natural-language requests are enough; the user does not need to name this mode.
 
-Run it explicitly:
+When the Mode Router selects paper trace, run:
 
 ```powershell
 python scripts/trace_paper.py --paper "10.1109/tnse.2021.3139045" --limit 30 --openalex --output-dir outputs/trace-connectivity-control
@@ -128,7 +148,7 @@ For Deep Research-style outputs, emphasize the topic rather than the mechanics o
 - Do not scrape Google Scholar, ResearchGate, publisher pages, or paywalled PDFs.
 - Do not claim the Python CLI has ChatGPT's internal web-search capability. Web search is a Codex workflow step, not a CLI connector.
 - Do not run paper reading mode unless the user explicitly asks for it; it downloads and parses larger artifacts.
-- Do not run paper trace mode unless the user asks for paper-centric relationship tracing; citation graph APIs can be incomplete and rate-limited.
+- Do not run paper trace mode unless the user asks for paper-centric relationship tracing in any clear wording; citation graph APIs can be incomplete and rate-limited.
 - Do not claim exhaustive coverage unless the user provided a full review protocol, selected databases, exact queries, and inclusion criteria.
 - State that results depend on API availability, source coverage, query quality, metadata quality, and credentials.
 - Read `references/api-notes.md` when changing connector behavior, API parameters, or source-specific claims.

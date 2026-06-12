@@ -28,6 +28,32 @@
 - 提供以文找文模式，追踪种子论文的前身、后续发展、深度引用和作者轨迹。
 - 不爬取 Google Scholar、ResearchGate、出版社页面，也不绕过付费墙。
 
+## Mode Selection
+
+The skill is intentionally broad, but each request should activate only the smallest useful mode. Users can describe the task naturally; they do not need to type exact mode names.
+
+| User intent | Selected mode | What runs |
+| --- | --- | --- |
+| Search papers, build a corpus, make a topic brief | Topic retrieval | `scripts/lit_retrieve.py` |
+| Write a Deep Research-style synthesis with web supplement | Hybrid Deep Research | retrieval plus web notes and `deep_research_report.md` |
+| Start from one seed paper and find predecessors, successors, deep citations, or author trajectories | Paper trace | `scripts/trace_paper.py` |
+| Read full papers, PDFs, or arXiv LaTeX sources | Paper reading | `scripts/read_papers.py` |
+
+Default behavior is conservative: if the request is ambiguous, run topic retrieval first and mention optional upgrades. Full-paper reading and combined multi-stage workflows should only happen when the user's intent is clear.
+
+## 模式选择
+
+这个 skill 功能较多，但每次请求只应触发能满足任务的最小模式。用户可以自然描述需求，不需要输入固定模式名。
+
+| 用户意图 | 选择的模式 | 执行内容 |
+| --- | --- | --- |
+| 检索论文、建立语料、生成主题简报 | 主题检索 | `scripts/lit_retrieve.py` |
+| 写类似 Deep Research 的综合报告，并补充网页证据 | 混合式 Deep Research | 检索、网页补充、`deep_research_report.md` |
+| 从一篇种子论文出发找前身、后续、深度引用或作者轨迹 | 以文找文 | `scripts/trace_paper.py` |
+| 阅读全文、PDF 或 arXiv LaTeX source | 论文阅读 | `scripts/read_papers.py` |
+
+默认行为是保守的：如果意图不明确，先做主题检索，再说明可升级到更重的报告、阅读或引用追踪流程。全文阅读和组合式多阶段流程需要明确意图。
+
 ## Installation
 
 Copy this folder into your Codex skills directory:

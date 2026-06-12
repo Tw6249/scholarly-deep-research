@@ -12,6 +12,8 @@
 - Ranks papers with a transparent scoring formula.
 - Generates Chinese `topic_brief.md` by default.
 - Documents a hybrid workflow for Codex-authored `web_supplement.md` and `deep_research_report.md`.
+- Adds explicit paper reading mode for arXiv LaTeX sources and open-access PDFs.
+- Adds paper trace mode for seed-paper predecessors, successors, deep citations, and author trajectories.
 - Avoids Google Scholar scraping, ResearchGate scraping, publisher scraping, and paywall bypassing.
 
 ## 功能
@@ -22,6 +24,8 @@
 - 使用透明评分公式对论文排序。
 - 默认生成中文 `topic_brief.md`。
 - 提供混合式工作流，让 Codex 基于网页补充生成 `web_supplement.md` 和 `deep_research_report.md`。
+- 提供显式论文阅读模式，优先读取 arXiv LaTeX source，其次读取开放获取 PDF。
+- 提供以文找文模式，追踪种子论文的前身、后续发展、深度引用和作者轨迹。
 - 不爬取 Google Scholar、ResearchGate、出版社页面，也不绕过付费墙。
 
 ## Installation
@@ -128,6 +132,56 @@ python scripts\read_papers.py `
 
 输出包括 `arxiv_sources/`、`pdfs/`、`paper_texts/`、`reading_reports/`、`pdf_manifest.csv` 和 `reading_index.md`。
 
+## Paper Trace Mode
+
+Paper trace mode starts from one seed paper and searches outward through references, citations, citation contexts, and author trajectories.
+
+```powershell
+python scripts\trace_paper.py `
+  --paper "10.1109/tnse.2021.3139045" `
+  --limit 30 `
+  --openalex `
+  --output-dir outputs\trace-connectivity-control
+```
+
+It produces:
+
+- `paper_trace.json`: structured trace data.
+- `paper_trace.csv`: table of related papers.
+- `paper_trace_report.md`: Chinese paper-centric trace report.
+
+Trace mode distinguishes:
+
+- likely predecessors: papers referenced by the seed paper;
+- follow-up development: papers citing the seed paper;
+- deep/method citations: citing papers with citation contexts, intents, or influential flags suggesting method use, comparison, extension, or close dependence;
+- author latest work: recent papers by seed authors and related-method authors.
+
+## 以文找文模式
+
+以文找文模式从一篇种子论文出发，沿参考文献、后续引用、引用上下文和作者轨迹向外追踪。
+
+```powershell
+python scripts\trace_paper.py `
+  --paper "10.1109/tnse.2021.3139045" `
+  --limit 30 `
+  --openalex `
+  --output-dir outputs\trace-connectivity-control
+```
+
+输出包括：
+
+- `paper_trace.json`：结构化追踪结果。
+- `paper_trace.csv`：相关论文表格。
+- `paper_trace_report.md`：中文以文找文报告。
+
+该模式区分：
+
+- 可能的前身：种子论文引用的参考文献；
+- 后续发展：引用种子论文的后续论文；
+- 深度/方法引用：引用上下文、citation intent 或 influential 标记显示其使用、比较、扩展或依赖本文方法的论文；
+- 作者最新动态：种子论文作者和相关方法作者的近期研究。
+
 ## Outputs
 
 Each run can produce:
@@ -142,6 +196,7 @@ Each run can produce:
 - `web_supplement.md`: Codex-authored web supplement notes.
 - `deep_research_report.md`: Codex-authored final synthesis.
 - `reading_reports/` and `reading_index.md`: explicit paper-reading outputs.
+- `paper_trace_report.md`, `paper_trace.json`, and `paper_trace.csv`: explicit paper-trace outputs.
 
 ## 输出文件
 
@@ -157,6 +212,7 @@ Each run can produce:
 - `web_supplement.md`：Codex 撰写的网页补充记录。
 - `deep_research_report.md`：Codex 撰写的最终综合调研报告。
 - `reading_reports/` 和 `reading_index.md`：显式论文阅读模式输出。
+- `paper_trace_report.md`、`paper_trace.json` 和 `paper_trace.csv`：显式以文找文模式输出。
 
 ## Hybrid Deep Research Workflow
 
@@ -187,6 +243,8 @@ scholarly-deep-research/
     report-template-zh.md
   scripts/
     lit_retrieve.py
+    read_papers.py
+    trace_paper.py
 ```
 
 ## Validation

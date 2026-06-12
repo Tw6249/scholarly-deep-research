@@ -1,6 +1,6 @@
 ---
 name: scholarly-deep-research
-description: Hybrid Deep Research workflow for scholarly literature retrieval and topic synthesis. Use when Codex needs to search papers, supplement with web evidence, and write a research-style briefing for literature reviews, related work, prior work, systematic review scoping, bibliography generation, research trend analysis, or evidence collection; supports OpenAlex, Semantic Scholar, Crossref, PubMed, arXiv, credential-gated IEEE Xplore, normalized CSV/JSON/BibTeX, Chinese topic briefs, search logs, and Codex-authored deep research reports.
+description: Hybrid Deep Research workflow for scholarly literature retrieval, paper-centric citation tracing, paper reading, and topic synthesis. Use when Codex needs to search papers, supplement with web evidence, trace a seed paper's predecessors/successors/deep citations/author trajectories, read paper PDFs or arXiv sources, and write a research-style briefing for literature reviews, related work, prior work, systematic review scoping, bibliography generation, research trend analysis, or evidence collection; supports OpenAlex, Semantic Scholar, Crossref, PubMed, arXiv, credential-gated IEEE Xplore, normalized CSV/JSON/BibTeX, Chinese topic briefs, citation-neighborhood reports, search logs, and Codex-authored deep research reports.
 ---
 
 # Scholarly Deep Research
@@ -54,6 +54,31 @@ Reading outputs:
 - `pdf_manifest.csv`: acquisition status, local paths, and notes.
 - `reading_index.md`: overview of what was actually read.
 
+## Paper Trace Mode
+
+Use paper trace mode when the user provides a seed paper and asks to find related work from that paper outward: predecessors, follow-up development, papers that use or compare against its method, or recent work by the seed authors and related-method authors.
+
+Run it explicitly:
+
+```powershell
+python scripts/trace_paper.py --paper "10.1109/tnse.2021.3139045" --limit 30 --openalex --output-dir outputs/trace-connectivity-control
+```
+
+Trace mode uses Semantic Scholar for references, citations, citation contexts, citation intents, influential-citation signals, and author trajectories. Use `--openalex` as a fallback/supplement when Semantic Scholar references are unavailable or publisher-elided.
+
+Trace outputs:
+
+- `paper_trace.json`: structured seed, predecessor, successor, deep-citation, and author-update data.
+- `paper_trace.csv`: table version of related papers.
+- `paper_trace_report.md`: Chinese report organized around likely predecessors, follow-up work, deep/method citations, and author latest work.
+
+Interpretation rules:
+
+- Treat seed references as possible predecessors or knowledge sources, not proven inspiration.
+- Treat citing papers as follow-up work, not necessarily method users.
+- Treat method/deep citations as stronger only when citation contexts, intents, or influential flags support that reading.
+- Clearly report when references are unavailable, elided, or metadata-only.
+
 ## Outputs
 
 Each run writes a timestamped output directory unless `--output-dir` is provided:
@@ -66,6 +91,7 @@ Each run writes a timestamped output directory unless `--output-dir` is provided
 - `web_supplement.md`: Codex-authored supplemental web-search notes when a hybrid run is requested.
 - `deep_research_report.md`: Codex-authored final synthesis when a hybrid run is requested.
 - `reading_reports/` and `reading_index.md`: explicit paper-reading outputs when `scripts/read_papers.py` is run.
+- `paper_trace_report.md`, `paper_trace.json`, and `paper_trace.csv`: explicit paper-trace outputs when `scripts/trace_paper.py` is run.
 - `search_log.md`: source parameters, counts, skipped sources, and ranking formula.
 - `errors.log`: connector errors, only when failures occur.
 
@@ -102,6 +128,7 @@ For Deep Research-style outputs, emphasize the topic rather than the mechanics o
 - Do not scrape Google Scholar, ResearchGate, publisher pages, or paywalled PDFs.
 - Do not claim the Python CLI has ChatGPT's internal web-search capability. Web search is a Codex workflow step, not a CLI connector.
 - Do not run paper reading mode unless the user explicitly asks for it; it downloads and parses larger artifacts.
+- Do not run paper trace mode unless the user asks for paper-centric relationship tracing; citation graph APIs can be incomplete and rate-limited.
 - Do not claim exhaustive coverage unless the user provided a full review protocol, selected databases, exact queries, and inclusion criteria.
 - State that results depend on API availability, source coverage, query quality, metadata quality, and credentials.
 - Read `references/api-notes.md` when changing connector behavior, API parameters, or source-specific claims.

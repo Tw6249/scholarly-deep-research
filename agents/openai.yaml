@@ -1,4 +1,4 @@
 interface:
   display_name: "Scholarly Deep Research"
-  short_description: "Research papers and synthesize topic reports"
-  default_prompt: "Use $scholarly-deep-research to retrieve scholarly evidence and write a deep research briefing."
+  short_description: "Retrieve, read, trace, and synthesize scholarly evidence"
+  default_prompt: "Use $scholarly-deep-research to retrieve or trace scholarly evidence and write a deep research briefing."
